@@ -1,0 +1,40 @@
+---
+import { formatPrice, mediaSrc } from '../lib/cms'
+import type { MenuItem } from '../lib/types'
+
+const { items, eyebrow, title, intro } = Astro.props as {
+  items: MenuItem[]
+  eyebrow?: string | null
+  title?: string | null
+  intro?: string | null
+}
+---
+
+<section class="section alt" id="cardapio">
+  <div class="wrap">
+    <div class="section-head">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h2>{title}</h2>
+      <p>{intro}</p>
+    </div>
+    <div class="menu-grid">
+      {items.map((item) => (
+        <article class="dish" tabindex="0">
+          {mediaSrc(item.image, item.imageUrl) && (
+            <img src={mediaSrc(item.image, item.imageUrl)} alt={item.name} />
+          )}
+          <div class="dish-copy">
+            {item.tag && <small>{item.tag}</small>}
+            <h3>{item.name}</h3>
+          </div>
+          <div class="dish-hover">
+            {item.tag && <small>{item.tag}</small>}
+            <h3>{item.name}</h3>
+            <p>{item.ingredients || item.description}</p>
+            {item.price != null && <p class="price">{formatPrice(item.price)}</p>}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

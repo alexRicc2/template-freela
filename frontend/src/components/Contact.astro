@@ -1,0 +1,43 @@
+---
+import type { Site } from '../lib/types'
+import { waLink } from '../lib/cms'
+
+const { site } = Astro.props as { site: Site }
+---
+
+<section class="section alt" id="contato">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">05 · Contato</p>
+      <h2>Encontre o Reino</h2>
+      <p>Venha nos visitar ou entre em contato. Estamos esperando sua chegada!</p>
+    </div>
+    <div class="contact-grid">
+      <article class="card">
+        <h3>Endereço</h3>
+        <p style="white-space: pre-line">{site.address}</p>
+      </article>
+      <article class="card">
+        <h3>Telefone & WhatsApp</h3>
+        <p><a href={waLink(site)}>{site.phone}</a></p>
+        {site.email && <p>{site.email}</p>}
+      </article>
+      <article class="card">
+        <h3>Horário de Funcionamento</h3>
+        {site.hours?.map((row) => (
+          <p>
+            <strong>{row.days}</strong> {row.time}
+          </p>
+        ))}
+      </article>
+      <article class="card">
+        <h3>Redes</h3>
+        {site.instagram && <p><a href={site.instagram}>Instagram</a></p>}
+        {site.facebook && <p><a href={site.facebook}>Facebook</a></p>}
+        <p>
+          <a href="/delivery">{site.deliveryLabel || 'Delivery'}</a>
+        </p>
+      </article>
+    </div>
+  </div>
+</section>

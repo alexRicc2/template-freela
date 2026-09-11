@@ -1,0 +1,33 @@
+---
+import '../styles/global.css'
+import type { Site } from '../lib/types'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+
+type Props = {
+  title?: string
+  description?: string
+  site: Site
+}
+
+const { site, title, description } = Astro.props
+const pageTitle = title ? `${title} · ${site.restaurantName}` : site.restaurantName
+const pageDescription = description || site.tagline || ''
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={pageDescription} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <Header site={site} />
+    <slot />
+    <Footer site={site} />
+  </body>
+</html>

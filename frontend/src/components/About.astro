@@ -1,0 +1,25 @@
+---
+import type { Site } from '../lib/types'
+
+const { site } = Astro.props as { site: Site }
+---
+
+<section class="section" id="sobre">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">{site.aboutEyebrow}</p>
+      <h2>{site.aboutTitle}</h2>
+      <p>{site.aboutBody}</p>
+    </div>
+    {site.stats?.length ? (
+      <div class="stats">
+        {site.stats.map((stat) => (
+          <div class="stat">
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+          </div>
+        ))}
+      </div>
+    ) : null}
+  </div>
+</section>

@@ -1,0 +1,27 @@
+{
+  "name": "restaurant-template",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:cms": "pnpm --filter cms dev",
+    "dev:web": "pnpm --filter frontend dev",
+    "build": "turbo run build",
+    "generate:types": "pnpm --filter cms generate:types",
+    "generate:importmap": "pnpm --filter cms generate:importmap"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8"
+  },
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": "^9 || ^10 || ^11"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  }
+}

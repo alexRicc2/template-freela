@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ItemDialog from '../components/ItemDialog.astro'
+import MenuCatalog from '../components/MenuCatalog.astro'
+import { categorySlug, getRestaurantContent } from '../lib/cms'
+
+const { site, items, categories } = await getRestaurantContent()
+const groups = categories
+  .map((category) => ({
+    category,
+    items: items.filter((item) => categorySlug(item) === category.slug),
+  }))
+  .filter((group) => group.items.length)
+---
+
+<Layout site={site} title="Cardápio">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Cardápio Salão</p>
+        <h2>O banquete completo</h2>
+        <p>Hambúrgueres, entradas e poções — tudo forjado na casa, do salão para a sua mesa. Toque em um item para ver a foto e a descrição.</p>
+      </div>
+      <MenuCatalog groups={groups} mode="view" />
+    </div>
+  </section>
+  <ItemDialog />
+</Layout>

@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ReservationForm from '../components/ReservationForm.astro'
+import { getRestaurantContent } from '../lib/cms'
+
+const { site } = await getRestaurantContent()
+---
+
+<Layout site={site} title="Reservas">
+  <ReservationForm site={site} />
+</Layout>

@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/Hero.astro'
+import About from '../components/About.astro'
+import FeaturedMenu from '../components/FeaturedMenu.astro'
+import Sides from '../components/Sides.astro'
+import Experiences from '../components/Experiences.astro'
+import ReservationForm from '../components/ReservationForm.astro'
+import Contact from '../components/Contact.astro'
+import { categorySlug, getRestaurantContent } from '../lib/cms'
+
+const { site, items, categories } = await getRestaurantContent()
+const featured = items.filter((item) => item.featured)
+const sidesCategory = categories.find((category) => category.slug === 'entradas')
+const sides = items.filter((item) => categorySlug(item) === (sidesCategory?.slug || 'entradas'))
+---
+
+<Layout site={site}>
+  <Hero site={site} />
+  <About site={site} />
+  <FeaturedMenu
+    items={featured}
+    eyebrow={site.menuEyebrow}
+    title={site.menuTitle}
+    intro={site.menuIntro}
+  />
+  <Sides items={sides} title={site.sidesTitle} intro={site.sidesIntro} />
+  <Experiences site={site} />
+  <ReservationForm site={site} />
+  <Contact site={site} />
+</Layout>

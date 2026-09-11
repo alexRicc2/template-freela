@@ -1,0 +1,20 @@
+---
+import type { Site } from '../lib/types'
+import { waLink } from '../lib/cms'
+
+const { site } = Astro.props as { site: Site }
+---
+
+<section class="hero" id="inicio">
+  <div class="wrap hero-inner">
+    <p class="eyebrow">{site.locationLabel}</p>
+    <h1>{site.restaurantName}</h1>
+    <p>{site.tagline}</p>
+    <div class="hero-actions">
+      <a class="btn btn-gold" href="/cardapio">Cardápio Salão</a>
+      <a class="btn btn-ghost" href="/reservas">Reservas</a>
+      <a class="btn btn-ghost" href="/delivery">{site.deliveryLabel || 'Delivery'}</a>
+      <a class="btn btn-ghost" href={waLink(site)}>WhatsApp</a>
+    </div>
+  </div>
+</section>

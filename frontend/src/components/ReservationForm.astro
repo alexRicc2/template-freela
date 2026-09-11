@@ -1,0 +1,96 @@
+---
+import { createReservation } from '../lib/cms'
+import type { Site } from '../lib/types'
+
+const { site } = Astro.props as { site: Site }
+const times = site.reservationTimes?.map((t) => t.value).filter(Boolean) || ['18:30', '19:00', '19:30']
+
+let success = false
+let error = ''
+
+if (Astro.request.method === 'POST') {
+  try {
+    const form = await Astro.request.formData()
+    if (!form.get('website')) {
+      await createReservation({
+        name: String(form.get('name') || ''),
+        phone: String(form.get('phone') || ''),
+        date: String(form.get('date') || ''),
+        time: String(form.get('time') || ''),
+        guests: String(form.get('guests') || ''),
+        area: String(form.get('area') || 'any'),
+        notes: String(form.get('notes') || ''),
+        status: 'new',
+      })
+    }
+    success = true
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Não foi possível enviar a reserva.'
+  }
+}
+---
+
+<section class="section" id="reservas">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">04 · Reservas</p>
+      <h2>{site.reservationTitle}</h2>
+      <p>{site.reservationIntro}</p>
+      {site.reservationNote && <p>{site.reservationNote}</p>}
+    </div>
+
+    {success && <div class="notice ok">Reserva enviada com sucesso! Entraremos em contato para confirmar.</div>}
+    {error && <div class="notice err">{error}</div>}
+
+    <form class="form" method="POST">
+      <label class="honeypot">
+        Não preencher
+        <input type="text" name="website" tabindex="-1" autocomplete="off" />
+      </label>
+      <label>
+        Nome completo
+        <input type="text" name="name" required />
+      </label>
+      <label>
+        Telefone / WhatsApp
+        <input type="tel" name="phone" required />
+      </label>
+      <label>
+        Data da reserva
+        <input type="date" name="date" required />
+      </label>
+      <label>
+        Horário
+        <select name="time" required>
+          <option value="">Selecione</option>
+          {times.map((time) => <option value={time}>{time}</option>)}
+        </select>
+      </label>
+      <label>
+        N° de pessoas
+        <select name="guests" required>
+          <option value="">Selecione</option>
+          {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => (
+            <option value={`${n}`}>{n} {n === 1 ? 'pessoa' : 'pessoas'}</option>
+          ))}
+          <option value="9+">9+ pessoas</option>
+        </select>
+      </label>
+      <label>
+        Preferência de área
+        <select name="area">
+          <option value="any">Qualquer uma</option>
+          <option value="indoor">Área interna</option>
+          <option value="outdoor">Área externa</option>
+        </select>
+      </label>
+      <label class="full">
+        Observações (opcional)
+        <textarea name="notes"></textarea>
+      </label>
+      <div class="full">
+        <button class="btn btn-gold" type="submit">Enviar Reserva</button>
+      </div>
+    </form>
+  </div>
+</section>

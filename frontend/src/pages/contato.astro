@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Contact from '../components/Contact.astro'
+import { getRestaurantContent } from '../lib/cms'
+
+const { site } = await getRestaurantContent()
+---
+
+<Layout site={site} title="Contato">
+  <Contact site={site} />
+</Layout>

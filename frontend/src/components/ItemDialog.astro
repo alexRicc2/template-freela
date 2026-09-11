@@ -1,0 +1,119 @@
+<dialog class="item-dialog" data-item-dialog>
+  <button type="button" class="dialog-close" data-dialog-close aria-label="Fechar">×</button>
+  <img data-dialog-image alt="" hidden />
+  <div class="item-dialog-body">
+    <p class="eyebrow" data-dialog-tag hidden></p>
+    <h3 data-dialog-name></h3>
+    <ul class="item-badges" data-dialog-badges hidden></ul>
+    <p data-dialog-description></p>
+    <dl class="item-facts" data-dialog-facts hidden></dl>
+    <p class="item-comments" data-dialog-comments hidden></p>
+    <p class="price" data-dialog-price hidden></p>
+  </div>
+</dialog>
+
+<script>
+  function formatPrice(value: string) {
+    if (!value) return ''
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value))
+  }
+
+  type ExtraInfo = {
+    badges?: string[]
+    facts?: { label: string; value: string }[]
+    comments?: string
+  }
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-item-dialog]')
+  const image = dialog?.querySelector<HTMLImageElement>('[data-dialog-image]')
+  const tag = dialog?.querySelector<HTMLElement>('[data-dialog-tag]')
+  const name = dialog?.querySelector<HTMLElement>('[data-dialog-name]')
+  const badges = dialog?.querySelector<HTMLElement>('[data-dialog-badges]')
+  const description = dialog?.querySelector<HTMLElement>('[data-dialog-description]')
+  const facts = dialog?.querySelector<HTMLElement>('[data-dialog-facts]')
+  const comments = dialog?.querySelector<HTMLElement>('[data-dialog-comments]')
+  const price = dialog?.querySelector<HTMLElement>('[data-dialog-price]')
+
+  function escapeHtml(value: string) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+  }
+
+  function parseExtra(raw?: string): ExtraInfo {
+    if (!raw) return {}
+    try {
+      return JSON.parse(raw) as ExtraInfo
+    } catch {
+      return {}
+    }
+  }
+
+  function openFrom(el: HTMLElement) {
+    if (!dialog || !image || !tag || !name || !badges || !description || !facts || !comments || !price) {
+      return
+    }
+
+    const src = el.dataset.image || ''
+    image.hidden = !src
+    image.src = src
+    image.alt = el.dataset.name || ''
+
+    const tagText = el.dataset.tag || ''
+    tag.hidden = !tagText
+    tag.textContent = tagText
+
+    name.textContent = el.dataset.name || ''
+    description.textContent = el.dataset.description || 'Sem descrição no momento.'
+
+    const extra = parseExtra(el.dataset.extra)
+    const badgeList = extra.badges || []
+    badges.hidden = badgeList.length === 0
+    badges.innerHTML = badgeList.map((badge) => `<li>${escapeHtml(badge)}</li>`).join('')
+
+    const factList = extra.facts || []
+    facts.hidden = factList.length === 0
+    facts.innerHTML = factList
+      .map((fact) => `<div><dt>${escapeHtml(fact.label)}</dt><dd>${escapeHtml(fact.value)}</dd></div>`)
+      .join('')
+
+    const commentText = extra.comments || ''
+    comments.hidden = !commentText
+    comments.textContent = commentText
+
+    const formatted = formatPrice(el.dataset.price || '')
+    price.hidden = !formatted
+    price.textContent = formatted
+
+    dialog.showModal()
+  }
+
+  function isIgnoredTarget(target: EventTarget | null) {
+    return Boolean((target as HTMLElement | null)?.closest('button, a, .qty-row, input, textarea, select'))
+  }
+
+  document.addEventListener('click', (event) => {
+    if (isIgnoredTarget(event.target)) return
+    const trigger = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-item-open]')
+    if (trigger) openFrom(trigger)
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    if (isIgnoredTarget(event.target)) return
+    const trigger = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-item-open]')
+    if (!trigger || event.target !== trigger) return
+    event.preventDefault()
+    openFrom(trigger)
+  })
+
+  dialog?.querySelector('[data-dialog-close]')?.addEventListener('click', () => dialog.close())
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close()
+  })
+</script>

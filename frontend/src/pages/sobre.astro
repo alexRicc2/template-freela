@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro'
+import About from '../components/About.astro'
+import Experiences from '../components/Experiences.astro'
+import { getRestaurantContent } from '../lib/cms'
+
+const { site } = await getRestaurantContent()
+---
+
+<Layout site={site} title="Sobre">
+  <section class="section" style="padding-bottom: 0">
+    <div class="wrap section-head">
+      <p class="eyebrow">Nossa história</p>
+      <h2>{site.restaurantName}</h2>
+    </div>
+  </section>
+  <About site={site} />
+  <Experiences site={site} />
+</Layout>

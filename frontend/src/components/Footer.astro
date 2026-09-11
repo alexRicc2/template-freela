@@ -1,0 +1,18 @@
+---
+import type { Site } from '../lib/types'
+
+const { site } = Astro.props as { site: Site }
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <strong class="brand">{site.restaurantName}</strong>
+      <p>{site.footerNote}</p>
+    </div>
+    <div>
+      {site.instagram && <a href={site.instagram}>Instagram</a>}
+      {site.facebook && <> · <a href={site.facebook}>Facebook</a></>}
+    </div>
+  </div>
+</footer>
