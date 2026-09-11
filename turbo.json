@@ -1,5 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "DATABASE_URL",
+    "DATABASE_SSL",
+    "PAYLOAD_SECRET",
+    "PAYLOAD_URL",
+    "FRONTEND_URL"
+  ],
   "tasks": {
     "dev": {
       "cache": false,

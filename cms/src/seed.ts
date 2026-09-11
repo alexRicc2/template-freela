@@ -1,5 +1,9 @@
 import type { Payload } from 'payload'
 
+import type { MenuItem } from './payload-types'
+
+type SpicyLevel = NonNullable<MenuItem['spicyLevel']>
+
 const burgers = [
   {
     name: 'Rei',
@@ -66,7 +70,7 @@ const burgers = [
       'Pão de brioche, hambúrguer suculento de 160g, cheddar fatiado, bacon assado crocante e cebola caramelizada.',
     imageUrl:
       'https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=900&q=80',
-    spicyLevel: 'medium',
+    spicyLevel: 'medium' as SpicyLevel,
     servings: 1,
     portionWeight: '160g',
     allergens: 'glúten, leite',
@@ -332,7 +336,7 @@ function extrasUnset(item: {
   servings?: number | null
   portionWeight?: string | null
   prepTimeMinutes?: number | null
-  spicyLevel?: string | null
+  spicyLevel?: SpicyLevel | null
   allergens?: string | null
 }) {
   return (
