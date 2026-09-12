@@ -4,6 +4,18 @@ import type { MenuItem } from './payload-types'
 
 type SpicyLevel = NonNullable<MenuItem['spicyLevel']>
 
+const burgerAddons: { name: string; price: number; kind: 'add' | 'extra' | 'swap' }[] = [
+  { name: 'Bacon extra', price: 6, kind: 'add' },
+  { name: 'Dobrar a carne', price: 10, kind: 'extra' },
+  { name: 'Catupiry extra', price: 5, kind: 'add' },
+  { name: 'Trocar batata comum por rústica', price: 4, kind: 'swap' },
+]
+
+const sideAddons: { name: string; price: number; kind: 'add' | 'extra' | 'swap' }[] = [
+  { name: 'Cheddar extra', price: 5, kind: 'add' as const },
+  { name: 'Bacon extra', price: 6, kind: 'add' as const },
+]
+
 const burgers = [
   {
     name: 'Rei',
@@ -12,6 +24,8 @@ const burgers = [
     featured: true,
     order: 1,
     price: 42,
+    description:
+      'Pão brioche tostado na manteiga, 160g de blend suculento grelhado na brasa, envolvido em catupiry empanado crocante e rúcula fresca. Presunto parma, geleia de tomate com manjericão e maionese real no contraste de cremoso, ácido e crocante.',
     ingredients:
       'Pão de brioche, hambúrguer suculento de 160g, catupiry empanado na farinha panko, presunto parma fatiado, rúcula fresquinha, geleia artesanal de tomate com manjericão e maionese real.',
     imageUrl:
@@ -22,6 +36,7 @@ const burgers = [
     prepTimeMinutes: 20,
     comments: 'O mais pedido da casa. Combina bem com Fritas dos Orcs.',
     allergens: 'glúten, leite, ovos',
+    addons: burgerAddons,
   },
   {
     name: 'Rainha',
@@ -30,10 +45,13 @@ const burgers = [
     featured: true,
     order: 2,
     price: 39,
+    description:
+      'Pão de sal com casca dourada, blend 160g grelhado, queijo coalho com casquinha tostada e rúcula viva. Tomate suculento, geleia de maçã artesanal e maionese real equilibram o salgado com um toque adocicado.',
     ingredients:
       'Pão de sal, hambúrguer suculento de 160g, queijo coalho grelhado, rúcula fresquinha, tomates selecionados, geleia de maçã artesanal e maionese real.',
     imageUrl:
       'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80',
+    addons: burgerAddons,
   },
   {
     name: 'Príncipe',
@@ -42,10 +60,13 @@ const burgers = [
     featured: true,
     order: 3,
     price: 44,
+    description:
+      'Brioche macio, blend 160g na brasa e pernil suíno desfiado ao barbecue, com bacon crocante e mussarela que estica no primeiro contato. Creme de parmesão artesanal e maionese real para um final untuoso.',
     ingredients:
       'Pão de brioche, hambúrguer suculento de 160g, pernil suíno desfiado com toque de barbecue, bacon assado crocante, mussarela derretida, creme de parmesão artesanal e maionese real.',
     imageUrl:
       'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=900&q=80',
+    addons: burgerAddons,
   },
   {
     name: 'Nobre',
@@ -54,10 +75,13 @@ const burgers = [
     featured: true,
     order: 4,
     price: 38,
+    description:
+      'Pão de sal, blend suculento de 160g, mussarela derretida e catupiry cremoso abraçados no bacon crocante. Creme de parmesão artesanal para um hambúrguer denso e reconfortante.',
     ingredients:
       'Pão de sal, hambúrguer suculento de 160g, mussarela derretida, catupiry cremoso, bacon assado crocante e creme de parmesão artesanal.',
     imageUrl:
       'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=900&q=80',
+    addons: burgerAddons,
   },
   {
     name: 'Espadachim',
@@ -66,6 +90,8 @@ const burgers = [
     featured: true,
     order: 5,
     price: 36,
+    description:
+      'Brioche tostado, blend 160g, cheddar fundido, bacon crocante e cebola caramelizada lenta — doce, salgado e defumado no mesmo bocado.',
     ingredients:
       'Pão de brioche, hambúrguer suculento de 160g, cheddar fatiado, bacon assado crocante e cebola caramelizada.',
     imageUrl:
@@ -74,6 +100,7 @@ const burgers = [
     servings: 1,
     portionWeight: '160g',
     allergens: 'glúten, leite',
+    addons: burgerAddons,
   },
   {
     name: 'Cavaleiro',
@@ -82,10 +109,13 @@ const burgers = [
     featured: true,
     order: 6,
     price: 40,
+    description:
+      'Brioche, blend 160g na brasa, bacon crocante e ovo frito com gema mole. Mussarela derretida, alface crocante, tomate maduro e cebola roxa, com maionese de ervas para um clássico suculento.',
     ingredients:
       'Pão de brioche, hambúrguer suculento de 160g, bacon assado crocante, ovo frito, mussarela derretida, alface, tomate, cebola roxa e maionese de ervas.',
     imageUrl:
       'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=80',
+    addons: burgerAddons,
   },
 ]
 
@@ -96,13 +126,16 @@ const sides = [
     order: 1,
     price: 32,
     description:
-      'Batatas fritas cobertas com creme de parmesão artesanal e pernil suíno desfiado com toque de barbecue. Acompanha maionese real.',
+      'Batatas douradas e crocantes cobertas com creme de parmesão artesanal e pernil suíno desfiado ao barbecue. A maionese real entra para molhar cada pedaço quente.',
+    ingredients:
+      'Batatas fritas, creme de parmesão artesanal, pernil suíno desfiado com toque de barbecue e maionese real.',
     imageUrl:
       'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=80',
     servings: 2,
     portionWeight: '400g',
     comments: 'Porção para compartilhar. Ideal para 2 pessoas.',
     allergens: 'leite, glúten',
+    addons: sideAddons,
   },
   {
     name: 'Croquete dos Anões',
@@ -110,9 +143,12 @@ const sides = [
     order: 2,
     price: 28,
     description:
-      'Porção com 6 croquetes de carne bovina com vinho, empanados na farinha panko. Acompanha maionese real e creme de parmesão.',
+      'Seis croquetes de carne bovina ao vinho, empanados na panko até a casca estalar. Por dentro, recheio suculento; por fora, crocância. Acompanham maionese real e creme de parmesão.',
+    ingredients:
+      'Croquetes de carne bovina com vinho, farinha panko, maionese real e creme de parmesão.',
     imageUrl:
       'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=80',
+    addons: sideAddons,
   },
   {
     name: 'Fritas dos Goblins',
@@ -120,9 +156,11 @@ const sides = [
     order: 3,
     price: 29,
     description:
-      'Batatas fritas cobertas com cheddar cremoso e bacon em cubos crocante. Acompanha maionese real.',
+      'Batatas crocantes afogadas em cheddar cremoso e cubos de bacon tostado. A maionese real corta o excesso e deixa cada garfada mais gulosa.',
+    ingredients: 'Batatas fritas, cheddar cremoso, bacon em cubos e maionese real.',
     imageUrl:
       'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=80',
+    addons: sideAddons,
   },
 ]
 
@@ -132,7 +170,9 @@ const drinks = [
     slug: 'pocao-da-casa',
     order: 1,
     price: 18,
-    description: 'Refresco cítrico da casa com hortelã, gengibre e um toque de mel.',
+    description:
+      'Refresco cítrico gelado com hortelã esmagada, gengibre picante e um fio de mel — abre o apetite e limpa o paladar entre um hambúrguer e outro.',
+    ingredients: 'Cítricos da casa, hortelã, gengibre e mel.',
     imageUrl:
       'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=900&q=80',
     vegan: true,
@@ -146,11 +186,58 @@ const drinks = [
     slug: 'milkshake-real',
     order: 2,
     price: 24,
-    description: 'Milkshake de baunilha com calda de caramelo salgado e chantilly.',
+    description:
+      'Milkshake gelado de baunilha, denso o bastante para o canudo resistir, com calda de caramelo salgado e chantilly fofo por cima.',
+    ingredients: 'Sorvete de baunilha, calda de caramelo salgado e chantilly.',
     imageUrl:
       'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=80',
   },
 ]
+
+const defaultWeeklyHours: {
+  weekday: '0' | '1' | '2' | '3' | '4' | '5' | '6'
+  closed: boolean
+  opensAt: string
+  closesAt: string
+}[] = [
+  { weekday: '0', closed: false, opensAt: '18:30', closesAt: '23:00' },
+  { weekday: '1', closed: true, opensAt: '', closesAt: '' },
+  { weekday: '2', closed: false, opensAt: '18:30', closesAt: '23:00' },
+  { weekday: '3', closed: false, opensAt: '18:30', closesAt: '23:00' },
+  { weekday: '4', closed: false, opensAt: '18:30', closesAt: '23:00' },
+  { weekday: '5', closed: false, opensAt: '18:30', closesAt: '23:00' },
+  { weekday: '6', closed: false, opensAt: '18:30', closesAt: '23:00' },
+]
+
+function commerceSiteDefaults() {
+  return {
+    statusMode: 'schedule' as const,
+    timezone: 'America/Sao_Paulo',
+    openLabel: 'Aberto · aceitando pedidos',
+    closedLabel: 'Fechado · pedidos no próximo horário',
+    closedMessage:
+      'A cozinha está fechada agora. Você ainda pode olhar o cardápio — os pedidos voltam a ser aceitos no próximo horário de funcionamento.',
+    acceptOrdersWhenClosed: false,
+    weeklyHours: defaultWeeklyHours,
+    leadCaptureEnabled: true,
+    leadCaptureCampaign: 'primeiro-pedido',
+    leadCaptureTitle: 'Ganhe 10% no primeiro pedido',
+    leadCaptureBody:
+      'Deixe seu WhatsApp e receba 10% de desconto no primeiro pedido pelo WhatsApp. Sem cadastro chato — a gente já manda a mensagem pronta.',
+    leadCaptureDiscount: '10% OFF',
+    leadCaptureCoupon: 'PRIMEIRO10',
+    leadCaptureCta: 'Quero meu desconto no WhatsApp',
+    leadCaptureWhatsappMessage:
+      'Olá, {restaurant}! Quero o cupom {coupon} ({discount}) no primeiro pedido. Meu WhatsApp é {phone}.',
+    googleReviewEnabled: true,
+    googleReviewUrl:
+      'https://www.google.com/maps/search/?api=1&query=Forja+Burger+S%C3%A3o+Jos%C3%A9+do+Rio+Preto',
+    googleReviewTitle: 'Curtiu a experiência?',
+    googleReviewBody:
+      'Nos ajude avaliando no Google. Leva menos de um minuto e fortalece a casa.',
+    googleReviewCta: 'Avaliar no Google',
+  }
+}
 
 export async function seedIfEmpty(payload: Payload) {
   const existing = await payload.count({ collection: 'menu-items' })
@@ -163,7 +250,7 @@ export async function seedIfEmpty(payload: Payload) {
     data: {
       name: 'Hambúrgueres',
       slug: 'hamburgueres',
-      description: 'Os campeões da casa — passe o mouse (ou toque) para revelar os ingredientes.',
+      description: 'Os campeões da casa — toque no prato para o copy, os ingredientes e os adicionais.',
       order: 1,
       showOnHome: true,
     },
@@ -199,7 +286,6 @@ export async function seedIfEmpty(payload: Payload) {
         ...item,
         category: burgersCat.id,
         published: true,
-        description: item.ingredients,
       },
     })
   }
@@ -212,7 +298,6 @@ export async function seedIfEmpty(payload: Payload) {
         category: sidesCat.id,
         featured: false,
         published: true,
-        ingredients: item.description,
       },
     })
   }
@@ -225,7 +310,6 @@ export async function seedIfEmpty(payload: Payload) {
         category: drinksCat.id,
         featured: false,
         published: true,
-        ingredients: item.description,
       },
     })
   }
@@ -289,6 +373,7 @@ export async function seedIfEmpty(payload: Payload) {
       instagram: 'https://instagram.com/',
       facebook: 'https://facebook.com/',
       footerNote: 'Forja Burger © 2026 — Todos os direitos reservados.',
+      ...commerceSiteDefaults(),
     },
   })
 
@@ -370,5 +455,119 @@ export async function seedItemExtrasIfEmpty(payload: Payload) {
       data: extras,
     })
     payload.logger.info(`Updated extra info for menu item "${slug}"`)
+  }
+}
+
+const copyBySlug: Record<string, { description: string; ingredients?: string }> = {
+  rei: {
+    description:
+      'Pão brioche tostado na manteiga, 160g de blend suculento grelhado na brasa, envolvido em catupiry empanado crocante e rúcula fresca. Presunto parma, geleia de tomate com manjericão e maionese real no contraste de cremoso, ácido e crocante.',
+  },
+  rainha: {
+    description:
+      'Pão de sal com casca dourada, blend 160g grelhado, queijo coalho com casquinha tostada e rúcula viva. Tomate suculento, geleia de maçã artesanal e maionese real equilibram o salgado com um toque adocicado.',
+  },
+  principe: {
+    description:
+      'Brioche macio, blend 160g na brasa e pernil suíno desfiado ao barbecue, com bacon crocante e mussarela que estica no primeiro contato. Creme de parmesão artesanal e maionese real para um final untuoso.',
+  },
+  nobre: {
+    description:
+      'Pão de sal, blend suculento de 160g, mussarela derretida e catupiry cremoso abraçados no bacon crocante. Creme de parmesão artesanal para um hambúrguer denso e reconfortante.',
+  },
+  espadachim: {
+    description:
+      'Brioche tostado, blend 160g, cheddar fundido, bacon crocante e cebola caramelizada lenta — doce, salgado e defumado no mesmo bocado.',
+  },
+  cavaleiro: {
+    description:
+      'Brioche, blend 160g na brasa, bacon crocante e ovo frito com gema mole. Mussarela derretida, alface crocante, tomate maduro e cebola roxa, com maionese de ervas para um clássico suculento.',
+  },
+  'fritas-dos-orcs': {
+    description:
+      'Batatas douradas e crocantes cobertas com creme de parmesão artesanal e pernil suíno desfiado ao barbecue. A maionese real entra para molhar cada pedaço quente.',
+    ingredients:
+      'Batatas fritas, creme de parmesão artesanal, pernil suíno desfiado com toque de barbecue e maionese real.',
+  },
+  'croquete-dos-anoes': {
+    description:
+      'Seis croquetes de carne bovina ao vinho, empanados na panko até a casca estalar. Por dentro, recheio suculento; por fora, crocância. Acompanham maionese real e creme de parmesão.',
+    ingredients:
+      'Croquetes de carne bovina com vinho, farinha panko, maionese real e creme de parmesão.',
+  },
+  'fritas-dos-goblins': {
+    description:
+      'Batatas crocantes afogadas em cheddar cremoso e cubos de bacon tostado. A maionese real corta o excesso e deixa cada garfada mais gulosa.',
+    ingredients: 'Batatas fritas, cheddar cremoso, bacon em cubos e maionese real.',
+  },
+  'pocao-da-casa': {
+    description:
+      'Refresco cítrico gelado com hortelã esmagada, gengibre picante e um fio de mel — abre o apetite e limpa o paladar entre um hambúrguer e outro.',
+    ingredients: 'Cítricos da casa, hortelã, gengibre e mel.',
+  },
+  'milkshake-real': {
+    description:
+      'Milkshake gelado de baunilha, denso o bastante para o canudo resistir, com calda de caramelo salgado e chantilly fofo por cima.',
+    ingredients: 'Sorvete de baunilha, calda de caramelo salgado e chantilly.',
+  },
+}
+
+const addonsBySlug: Record<string, { name: string; price: number; kind: 'add' | 'extra' | 'swap' }[]> = {
+  rei: burgerAddons,
+  rainha: burgerAddons,
+  principe: burgerAddons,
+  nobre: burgerAddons,
+  espadachim: burgerAddons,
+  cavaleiro: burgerAddons,
+  'fritas-dos-orcs': sideAddons,
+  'croquete-dos-anoes': sideAddons,
+  'fritas-dos-goblins': sideAddons,
+}
+
+export async function seedCommerceIfEmpty(payload: Payload) {
+  const site = await payload.findGlobal({ slug: 'site' })
+  if (!site.statusMode || !site.weeklyHours?.length) {
+    await payload.updateGlobal({
+      slug: 'site',
+      data: {
+        ...commerceSiteDefaults(),
+        statusMode: site.statusMode || 'schedule',
+        leadCaptureEnabled: site.leadCaptureEnabled ?? true,
+        googleReviewEnabled: site.googleReviewEnabled ?? true,
+        googleReviewUrl:
+          site.googleReviewUrl || commerceSiteDefaults().googleReviewUrl,
+      },
+    })
+    payload.logger.info('Seeded site commerce settings (hours, leads, review).')
+  }
+
+  const items = await payload.find({
+    collection: 'menu-items',
+    limit: 200,
+    depth: 0,
+  })
+
+  for (const item of items.docs) {
+    const copy = copyBySlug[item.slug]
+    const addons = addonsBySlug[item.slug]
+    const data: Record<string, unknown> = {}
+
+    if (copy) {
+      const descriptionIsList = !item.description || item.description === item.ingredients
+      if (descriptionIsList) data.description = copy.description
+      if (copy.ingredients && !item.ingredients) data.ingredients = copy.ingredients
+    }
+
+    if (addons && (!item.addons || item.addons.length === 0)) {
+      data.addons = addons
+    }
+
+    if (Object.keys(data).length === 0) continue
+    await payload.update({
+      collection: 'menu-items',
+      id: item.id,
+      data,
+    })
+    payload.logger.info(`Updated commerce content for menu item "${item.slug}"`)
   }
 }

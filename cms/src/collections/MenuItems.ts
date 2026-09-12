@@ -56,15 +56,19 @@ export const MenuItems: CollectionConfig = {
     },
     {
       name: 'description',
-      label: 'Descrição',
+      label: 'Descrição (copy sensorial)',
       type: 'textarea',
+      admin: {
+        description:
+          'Texto que desperta o apetite: calor, crocância, suculência, contraste. Evite só listar ingredientes — isso vai no campo abaixo. Ex.: “Pão brioche tostado na manteiga, 160g de blend suculento grelhado na brasa, envolvido em catupiry empanado crocante e rúcula fresca”.',
+      },
     },
     {
       name: 'ingredients',
       label: 'Ingredientes',
       type: 'textarea',
       admin: {
-        description: 'Revelados no hover/toque da home.',
+        description: 'Lista objetiva dos ingredientes. Aparece como detalhe, não como texto principal.',
       },
     },
     {
@@ -182,6 +186,54 @@ export const MenuItems: CollectionConfig = {
           admin: {
             description: 'Ex.: leite, glúten, ovos, soja, amendoim',
           },
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Adicionais e upsell',
+      admin: {
+        initCollapsed: false,
+        description:
+          'Opcionais lucrativos no modal do item (delivery e cardápio). Ex.: bacon extra, dobrar a carne, trocar batata.',
+      },
+      fields: [
+        {
+          name: 'addons',
+          label: 'Adicionais',
+          type: 'array',
+          labels: {
+            singular: 'Adicional',
+            plural: 'Adicionais',
+          },
+          fields: [
+            {
+              name: 'name',
+              label: 'Nome',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'price',
+              label: 'Valor extra (R$)',
+              type: 'number',
+              min: 0,
+              defaultValue: 0,
+              admin: { step: 0.01, width: '50%' },
+            },
+            {
+              name: 'kind',
+              label: 'Tipo',
+              type: 'select',
+              defaultValue: 'add',
+              admin: { width: '50%' },
+              options: [
+                { label: 'Adicionar', value: 'add' },
+                { label: 'Extra / dobrar', value: 'extra' },
+                { label: 'Troca', value: 'swap' },
+              ],
+            },
+          ],
         },
       ],
     },

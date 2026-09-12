@@ -170,6 +170,244 @@ export const Site: GlobalConfig = {
           ],
         },
         {
+          label: 'Funcionamento',
+          fields: [
+            {
+              name: 'statusMode',
+              label: 'Status da casa',
+              type: 'select',
+              defaultValue: 'schedule',
+              options: [
+                { label: 'Automático (seguir horários)', value: 'schedule' },
+                { label: 'Forçar aberto', value: 'open' },
+                { label: 'Forçar fechado', value: 'closed' },
+              ],
+              admin: {
+                description:
+                  'Use “Forçar” em feriados ou imprevistos. No automático, o site calcula Aberto/Fechado pelo horário da semana.',
+              },
+            },
+            {
+              name: 'timezone',
+              label: 'Fuso horário',
+              type: 'text',
+              defaultValue: 'America/Sao_Paulo',
+              admin: {
+                description: 'IANA, ex.: America/Sao_Paulo',
+              },
+            },
+            {
+              name: 'openLabel',
+              label: 'Texto quando aberto',
+              type: 'text',
+              defaultValue: 'Aberto · aceitando pedidos',
+            },
+            {
+              name: 'closedLabel',
+              label: 'Texto quando fechado',
+              type: 'text',
+              defaultValue: 'Fechado · pedidos pelo WhatsApp no próximo horário',
+            },
+            {
+              name: 'closedMessage',
+              label: 'Aviso extra (fechado)',
+              type: 'textarea',
+              admin: {
+                description: 'Exibido no delivery quando a casa não está aceitando pedidos.',
+              },
+            },
+            {
+              name: 'acceptOrdersWhenClosed',
+              label: 'Permitir montar pedido mesmo fechado',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'weeklyHours',
+              label: 'Horários da semana',
+              type: 'array',
+              admin: {
+                description: 'Usado pelo indicador Aberto/Fechado. 0 = domingo … 6 = sábado.',
+              },
+              fields: [
+                {
+                  name: 'weekday',
+                  label: 'Dia',
+                  type: 'select',
+                  required: true,
+                  options: [
+                    { label: 'Domingo', value: '0' },
+                    { label: 'Segunda', value: '1' },
+                    { label: 'Terça', value: '2' },
+                    { label: 'Quarta', value: '3' },
+                    { label: 'Quinta', value: '4' },
+                    { label: 'Sexta', value: '5' },
+                    { label: 'Sábado', value: '6' },
+                  ],
+                },
+                {
+                  name: 'closed',
+                  label: 'Fechado neste dia',
+                  type: 'checkbox',
+                  defaultValue: false,
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'opensAt',
+                      label: 'Abre',
+                      type: 'text',
+                      admin: {
+                        width: '50%',
+                        placeholder: '18:30',
+                        condition: (_, siblingData) => !siblingData?.closed,
+                      },
+                    },
+                    {
+                      name: 'closesAt',
+                      label: 'Fecha',
+                      type: 'text',
+                      admin: {
+                        width: '50%',
+                        placeholder: '23:00',
+                        condition: (_, siblingData) => !siblingData?.closed,
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Captação de leads',
+          fields: [
+            {
+              name: 'leadCaptureEnabled',
+              label: 'Ativar popup de primeira visita',
+              type: 'checkbox',
+              defaultValue: true,
+            },
+            {
+              name: 'leadCaptureCampaign',
+              label: 'ID da campanha',
+              type: 'text',
+              defaultValue: 'primeiro-pedido',
+              admin: {
+                description:
+                  'Quem já viu ou resgatou não vê de novo. Troque o ID para relançar a oferta.',
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+            {
+              name: 'leadCaptureTitle',
+              label: 'Título',
+              type: 'text',
+              defaultValue: 'Ganhe 10% no primeiro pedido',
+              admin: {
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+            {
+              name: 'leadCaptureBody',
+              label: 'Texto',
+              type: 'textarea',
+              defaultValue:
+                'Deixe seu WhatsApp e receba 10% de desconto no primeiro pedido. Sem cadastro chato — a gente já manda a mensagem pronta.',
+              admin: {
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+            {
+              name: 'leadCaptureDiscount',
+              label: 'Selo do desconto',
+              type: 'text',
+              defaultValue: '10% OFF',
+              admin: {
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+            {
+              name: 'leadCaptureCoupon',
+              label: 'Cupom',
+              type: 'text',
+              defaultValue: 'PRIMEIRO10',
+              admin: {
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+            {
+              name: 'leadCaptureCta',
+              label: 'Botão',
+              type: 'text',
+              defaultValue: 'Quero meu desconto no WhatsApp',
+              admin: {
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+            {
+              name: 'leadCaptureWhatsappMessage',
+              label: 'Mensagem do WhatsApp',
+              type: 'textarea',
+              defaultValue:
+                'Olá, {restaurant}! Quero o cupom {coupon} ({discount}) no primeiro pedido. Meu WhatsApp é {phone}.',
+              admin: {
+                description: 'Placeholders: {restaurant} {coupon} {discount} {phone} {name}',
+                condition: (_, siblingData) => siblingData?.leadCaptureEnabled !== false,
+              },
+            },
+          ],
+        },
+        {
+          label: 'Avaliação Google',
+          fields: [
+            {
+              name: 'googleReviewEnabled',
+              label: 'Exibir convite de avaliação',
+              type: 'checkbox',
+              defaultValue: true,
+            },
+            {
+              name: 'googleReviewUrl',
+              label: 'Link de avaliação (Google Maps)',
+              type: 'text',
+              admin: {
+                description:
+                  'Link “Escrever avaliação” do Google. Também usado na página /avaliar (placa NFC).',
+                condition: (_, siblingData) => siblingData?.googleReviewEnabled !== false,
+              },
+            },
+            {
+              name: 'googleReviewTitle',
+              label: 'Título',
+              type: 'text',
+              defaultValue: 'Curtiu a experiência?',
+              admin: {
+                condition: (_, siblingData) => siblingData?.googleReviewEnabled !== false,
+              },
+            },
+            {
+              name: 'googleReviewBody',
+              label: 'Texto',
+              type: 'textarea',
+              defaultValue: 'Nos ajude avaliando no Google. Leva menos de um minuto e fortalece a casa.',
+              admin: {
+                condition: (_, siblingData) => siblingData?.googleReviewEnabled !== false,
+              },
+            },
+            {
+              name: 'googleReviewCta',
+              label: 'Botão',
+              type: 'text',
+              defaultValue: 'Avaliar no Google',
+              admin: {
+                condition: (_, siblingData) => siblingData?.googleReviewEnabled !== false,
+              },
+            },
+          ],
+        },
+        {
           label: 'Contato',
           fields: [
             {

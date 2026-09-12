@@ -3,14 +3,16 @@ import '../styles/global.css'
 import type { Site } from '../lib/types'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
+import LeadCapture from '../components/LeadCapture.astro'
 
 type Props = {
   title?: string
   description?: string
   site: Site
+  hideLead?: boolean
 }
 
-const { site, title, description } = Astro.props
+const { site, title, description, hideLead = false } = Astro.props
 const pageTitle = title ? `${title} · ${site.restaurantName}` : site.restaurantName
 const pageDescription = description || site.tagline || ''
 ---
@@ -29,5 +31,6 @@ const pageDescription = description || site.tagline || ''
     <Header site={site} />
     <slot />
     <Footer site={site} />
+    {!hideLead && <LeadCapture site={site} />}
   </body>
 </html>

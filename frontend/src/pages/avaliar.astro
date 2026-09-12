@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ReviewBanner from '../components/ReviewBanner.astro'
+import { getRestaurantContent } from '../lib/cms'
+
+const { site } = await getRestaurantContent()
+---
+
+<Layout site={site} title="Avaliar" hideLead>
+  <section class="section review-page">
+    <div class="wrap review-page-inner">
+      <p class="eyebrow">{site.restaurantName}</p>
+      <h1>Obrigado por sentar à mesa</h1>
+      <p>
+        Se a experiência valeu a visita, uma avaliação no Google ajuda outros a
+        encontrarem a casa — e é o melhor retorno que podemos pedir.
+      </p>
+      <ReviewBanner site={site} />
+      {
+        !site.googleReviewEnabled || !site.googleReviewUrl ? (
+          <p>A avaliação no Google está desativada no momento. Volte sempre.</p>
+        ) : null
+      }
+      <p>
+        <a class="btn btn-ghost" href="/">Voltar ao início</a>
+      </p>
+    </div>
+  </section>
+</Layout>

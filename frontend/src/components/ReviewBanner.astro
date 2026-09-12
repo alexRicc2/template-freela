@@ -1,0 +1,19 @@
+---
+import type { Site } from '../lib/types'
+
+const { site } = Astro.props as { site: Site }
+const enabled = Boolean(site.googleReviewEnabled && site.googleReviewUrl)
+---
+
+{
+  enabled && (
+    <aside class="review-banner">
+      <p class="eyebrow">Obrigado</p>
+      <h3>{site.googleReviewTitle || 'Curtiu a experiência?'}</h3>
+      <p>{site.googleReviewBody}</p>
+      <a class="btn btn-gold" href={site.googleReviewUrl || '#'} target="_blank" rel="noopener noreferrer">
+        {site.googleReviewCta || 'Avaliar no Google'}
+      </a>
+    </aside>
+  )
+}

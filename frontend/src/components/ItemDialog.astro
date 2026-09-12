@@ -1,4 +1,8 @@
-<dialog class="item-dialog" data-item-dialog>
+---
+const { order = false } = Astro.props as { order?: boolean }
+---
+
+<dialog class="item-dialog" data-item-dialog data-order-mode={order ? 'true' : 'false'}>
   <button type="button" class="dialog-close" data-dialog-close aria-label="Fechar">×</button>
   <img data-dialog-image alt="" hidden />
   <div class="item-dialog-body">
@@ -6,19 +10,33 @@
     <h3 data-dialog-name></h3>
     <ul class="item-badges" data-dialog-badges hidden></ul>
     <p data-dialog-description></p>
+    <p class="item-ingredients" data-dialog-ingredients hidden></p>
     <dl class="item-facts" data-dialog-facts hidden></dl>
     <p class="item-comments" data-dialog-comments hidden></p>
     <p class="price" data-dialog-price hidden></p>
+    <div class="addons-block" data-dialog-addons hidden>
+      <p class="addons-title">Personalize</p>
+      <div data-dialog-addons-list></div>
+    </div>
+    <div class="dialog-order" data-dialog-order hidden>
+      <div class="qty-row">
+        <button type="button" class="btn btn-ghost qty-btn" data-dialog-dec aria-label="Diminuir quantidade">−</button>
+        <span data-dialog-qty>1</span>
+        <button type="button" class="btn btn-gold qty-btn" data-dialog-inc aria-label="Aumentar quantidade">+</button>
+      </div>
+      <button type="button" class="btn btn-gold dialog-add" data-dialog-add>Adicionar ao pedido</button>
+    </div>
   </div>
 </dialog>
 
 <script>
-  function formatPrice(value: string) {
-    if (!value) return ''
+  function formatPrice(value: number | string) {
+    const amount = typeof value === 'string' ? Number(value) : value
+    if (!Number.isFinite(amount)) return ''
     return new Intl.NumberFormat('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(Number(value))
+    }).format(amount)
   }
 
   type ExtraInfo = {
@@ -27,15 +45,36 @@
     comments?: string
   }
 
+  type Addon = {
+    id?: string
+    name: string
+    price?: number | null
+    kind?: 'add' | 'extra' | 'swap' | null
+  }
+
   const dialog = document.querySelector<HTMLDialogElement>('[data-item-dialog]')
   const image = dialog?.querySelector<HTMLImageElement>('[data-dialog-image]')
   const tag = dialog?.querySelector<HTMLElement>('[data-dialog-tag]')
   const name = dialog?.querySelector<HTMLElement>('[data-dialog-name]')
   const badges = dialog?.querySelector<HTMLElement>('[data-dialog-badges]')
   const description = dialog?.querySelector<HTMLElement>('[data-dialog-description]')
+  const ingredients = dialog?.querySelector<HTMLElement>('[data-dialog-ingredients]')
   const facts = dialog?.querySelector<HTMLElement>('[data-dialog-facts]')
   const comments = dialog?.querySelector<HTMLElement>('[data-dialog-comments]')
   const price = dialog?.querySelector<HTMLElement>('[data-dialog-price]')
+  const addonsBlock = dialog?.querySelector<HTMLElement>('[data-dialog-addons]')
+  const addonsList = dialog?.querySelector<HTMLElement>('[data-dialog-addons-list]')
+  const orderPanel = dialog?.querySelector<HTMLElement>('[data-dialog-order]')
+  const qtyLabel = dialog?.querySelector<HTMLElement>('[data-dialog-qty]')
+  const addButton = dialog?.querySelector<HTMLButtonElement>('[data-dialog-add]')
+
+  let current: {
+    id: string
+    name: string
+    price: number
+    addons: Addon[]
+  } | null = null
+  let qty = 1
 
   function escapeHtml(value: string) {
     return value
@@ -45,17 +84,52 @@
       .replace(/"/g, '&quot;')
   }
 
-  function parseExtra(raw?: string): ExtraInfo {
-    if (!raw) return {}
+  function parseJson<T>(raw: string | undefined, fallback: T): T {
+    if (!raw) return fallback
     try {
-      return JSON.parse(raw) as ExtraInfo
+      return JSON.parse(raw) as T
     } catch {
-      return {}
+      return fallback
     }
   }
 
+  function selectedAddons() {
+    if (!dialog) return [] as Addon[]
+    return [...dialog.querySelectorAll<HTMLInputElement>('[data-addon-check]:checked')].map((input) => ({
+      id: input.dataset.id || input.value,
+      name: input.dataset.name || '',
+      price: Number(input.dataset.price || 0),
+      kind: (input.dataset.kind as Addon['kind']) || 'add',
+    }))
+  }
+
+  function unitTotal() {
+    if (!current) return 0
+    return current.price + selectedAddons().reduce((sum, addon) => sum + (addon.price || 0), 0)
+  }
+
+  function refreshAddButton() {
+    if (!addButton || !current) return
+    addButton.textContent = `Adicionar · ${formatPrice(unitTotal() * qty)}`
+  }
+
   function openFrom(el: HTMLElement) {
-    if (!dialog || !image || !tag || !name || !badges || !description || !facts || !comments || !price) {
+    if (
+      !dialog ||
+      !image ||
+      !tag ||
+      !name ||
+      !badges ||
+      !description ||
+      !ingredients ||
+      !facts ||
+      !comments ||
+      !price ||
+      !addonsBlock ||
+      !addonsList ||
+      !orderPanel ||
+      !qtyLabel
+    ) {
       return
     }
 
@@ -71,7 +145,12 @@
     name.textContent = el.dataset.name || ''
     description.textContent = el.dataset.description || 'Sem descrição no momento.'
 
-    const extra = parseExtra(el.dataset.extra)
+    const ingredientText = el.dataset.ingredients || ''
+    const showIngredients = Boolean(ingredientText && ingredientText !== el.dataset.description)
+    ingredients.hidden = !showIngredients
+    ingredients.textContent = showIngredients ? `Ingredientes: ${ingredientText}` : ''
+
+    const extra = parseJson<ExtraInfo>(el.dataset.extra, {})
     const badgeList = extra.badges || []
     badges.hidden = badgeList.length === 0
     badges.innerHTML = badgeList.map((badge) => `<li>${escapeHtml(badge)}</li>`).join('')
@@ -86,15 +165,46 @@
     comments.hidden = !commentText
     comments.textContent = commentText
 
+    const basePrice = Number(el.dataset.price || 0)
     const formatted = formatPrice(el.dataset.price || '')
     price.hidden = !formatted
     price.textContent = formatted
+
+    const addons = parseJson<Addon[]>(el.dataset.addons, []).filter((addon) => addon.name)
+    const orderMode = dialog.dataset.orderMode === 'true'
+    addonsBlock.hidden = addons.length === 0
+    addonsList.innerHTML = addons
+      .map((addon, index) => {
+        const addonPrice = Number(addon.price || 0)
+        const priceLabel = addonPrice > 0 ? `+ ${formatPrice(addonPrice)}` : 'sem acréscimo'
+        const id = addon.id || `${addon.name}-${index}`
+        if (orderMode) {
+          return `<label class="addon-row">
+            <input type="checkbox" data-addon-check data-id="${escapeHtml(id)}" data-name="${escapeHtml(addon.name)}" data-price="${addonPrice}" data-kind="${addon.kind || 'add'}" />
+            <span>${escapeHtml(addon.name)}</span>
+            <strong>${priceLabel}</strong>
+          </label>`
+        }
+        return `<p class="addon-row addon-row-static"><span>${escapeHtml(addon.name)}</span><strong>${priceLabel}</strong></p>`
+      })
+      .join('')
+
+    current = {
+      id: el.dataset.id || el.dataset.name || '',
+      name: el.dataset.name || '',
+      price: Number.isFinite(basePrice) ? basePrice : 0,
+      addons,
+    }
+    qty = 1
+    qtyLabel.textContent = '1'
+    orderPanel.hidden = !orderMode
+    refreshAddButton()
 
     dialog.showModal()
   }
 
   function isIgnoredTarget(target: EventTarget | null) {
-    return Boolean((target as HTMLElement | null)?.closest('button, a, .qty-row, input, textarea, select'))
+    return Boolean((target as HTMLElement | null)?.closest('a, .qty-row, input, textarea, select'))
   }
 
   document.addEventListener('click', (event) => {
@@ -115,5 +225,36 @@
   dialog?.querySelector('[data-dialog-close]')?.addEventListener('click', () => dialog.close())
   dialog?.addEventListener('click', (event) => {
     if (event.target === dialog) dialog.close()
+  })
+
+  dialog?.querySelector('[data-dialog-inc]')?.addEventListener('click', () => {
+    qty += 1
+    if (qtyLabel) qtyLabel.textContent = String(qty)
+    refreshAddButton()
+  })
+
+  dialog?.querySelector('[data-dialog-dec]')?.addEventListener('click', () => {
+    qty = Math.max(1, qty - 1)
+    if (qtyLabel) qtyLabel.textContent = String(qty)
+    refreshAddButton()
+  })
+
+  addonsList?.addEventListener('change', refreshAddButton)
+
+  addButton?.addEventListener('click', () => {
+    if (!current) return
+    const addons = selectedAddons()
+    document.dispatchEvent(
+      new CustomEvent('delivery:add', {
+        detail: {
+          productId: current.id,
+          name: current.name,
+          price: current.price,
+          addons,
+          qty,
+        },
+      }),
+    )
+    dialog?.close()
   })
 </script>

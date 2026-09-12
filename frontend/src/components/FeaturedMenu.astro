@@ -30,7 +30,7 @@ const { items, eyebrow, title, intro } = Astro.props as {
           <div class="dish-hover">
             {item.tag && <small>{item.tag}</small>}
             <h3>{item.name}</h3>
-            <p>{item.ingredients || item.description}</p>
+            <p>{item.description || item.ingredients}</p>
             {item.price != null && <p class="price">{formatPrice(item.price)}</p>}
           </div>
         </article>

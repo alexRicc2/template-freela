@@ -16,6 +16,13 @@ export type MenuCategory = {
   showOnHome?: boolean | null
 }
 
+export type MenuAddon = {
+  id?: string
+  name: string
+  price?: number | null
+  kind?: 'add' | 'extra' | 'swap' | null
+}
+
 export type MenuItem = {
   id: number | string
   name: string
@@ -42,6 +49,7 @@ export type MenuItem = {
   prepTimeMinutes?: number | null
   spicyLevel?: 'none' | 'mild' | 'medium' | 'hot' | null
   allergens?: string | null
+  addons?: MenuAddon[] | null
 }
 
 export type Site = {
@@ -78,6 +86,34 @@ export type Site = {
   facebook?: string | null
   mapEmbedUrl?: string | null
   footerNote?: string | null
+  statusMode?: 'schedule' | 'open' | 'closed' | null
+  timezone?: string | null
+  openLabel?: string | null
+  closedLabel?: string | null
+  closedMessage?: string | null
+  acceptOrdersWhenClosed?: boolean | null
+  weeklyHours?:
+    | {
+        id?: string
+        weekday: '0' | '1' | '2' | '3' | '4' | '5' | '6'
+        closed?: boolean | null
+        opensAt?: string | null
+        closesAt?: string | null
+      }[]
+    | null
+  leadCaptureEnabled?: boolean | null
+  leadCaptureCampaign?: string | null
+  leadCaptureTitle?: string | null
+  leadCaptureBody?: string | null
+  leadCaptureDiscount?: string | null
+  leadCaptureCoupon?: string | null
+  leadCaptureCta?: string | null
+  leadCaptureWhatsappMessage?: string | null
+  googleReviewEnabled?: boolean | null
+  googleReviewUrl?: string | null
+  googleReviewTitle?: string | null
+  googleReviewBody?: string | null
+  googleReviewCta?: string | null
 }
 
 export type RestaurantContent = {

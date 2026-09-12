@@ -1,11 +1,31 @@
 ---
+import { restaurantStatus } from '../lib/hours'
 import type { Site } from '../lib/types'
 
 const { site } = Astro.props as { site: Site }
 const path = Astro.url.pathname
+const status = restaurantStatus(site)
+const statusConfig = {
+  statusMode: site.statusMode,
+  timezone: site.timezone,
+  openLabel: site.openLabel,
+  closedLabel: site.closedLabel,
+  closedMessage: site.closedMessage,
+  acceptOrdersWhenClosed: site.acceptOrdersWhenClosed,
+  weeklyHours: site.weeklyHours,
+}
 ---
 
 <header class="site-header">
+  <div
+    class:list={['status-bar', status.open ? 'is-open' : 'is-closed']}
+    data-status-bar
+    data-status-config={JSON.stringify(statusConfig)}
+  >
+    <span class="status-dot" aria-hidden="true"></span>
+    <strong data-status-label>{status.label}</strong>
+    {status.detail && <span data-status-detail>{status.detail}</span>}
+  </div>
   <div class="wrap">
     <a class="brand" href="/">{site.restaurantName}</a>
     <button class="nav-toggle" type="button" aria-label="Abrir menu" data-nav-toggle>Menu</button>
@@ -22,7 +42,33 @@ const path = Astro.url.pathname
 </header>
 
 <script>
+  import { restaurantStatus } from '../lib/hours'
+  import type { Site } from '../lib/types'
+
   const toggle = document.querySelector('[data-nav-toggle]')
   const nav = document.querySelector('[data-nav]')
   toggle?.addEventListener('click', () => nav?.classList.toggle('open'))
+
+  function refreshStatus() {
+    const bar = document.querySelector<HTMLElement>('[data-status-bar]')
+    if (!bar) return
+    try {
+      const site = JSON.parse(bar.dataset.statusConfig || '{}') as Site
+      const status = restaurantStatus(site)
+      bar.classList.toggle('is-open', status.open)
+      bar.classList.toggle('is-closed', !status.open)
+      const label = bar.querySelector('[data-status-label]')
+      const detail = bar.querySelector('[data-status-detail]')
+      if (label) label.textContent = status.label
+      if (detail) {
+        detail.textContent = status.detail
+        detail.toggleAttribute('hidden', !status.detail)
+      }
+    } catch {
+      /* keep SSR status */
+    }
+  }
+
+  refreshStatus()
+  window.setInterval(refreshStatus, 30000)
 </script>

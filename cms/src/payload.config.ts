@@ -11,8 +11,9 @@ import { Media } from './collections/Media'
 import { MenuCategories } from './collections/MenuCategories'
 import { MenuItems } from './collections/MenuItems'
 import { Reservations } from './collections/Reservations'
+import { Leads } from './collections/Leads'
 import { Site } from './globals/Site'
-import { seedIfEmpty, seedItemExtrasIfEmpty } from './seed'
+import { seedIfEmpty, seedItemExtrasIfEmpty, seedCommerceIfEmpty } from './seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,7 +34,7 @@ export default buildConfig({
       titleSuffix: ' — Forja CMS',
     },
   },
-  collections: [Users, Media, MenuCategories, MenuItems, Reservations],
+  collections: [Users, Media, MenuCategories, MenuItems, Reservations, Leads],
   globals: [Site],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -60,6 +61,7 @@ export default buildConfig({
     try {
       await seedIfEmpty(payload)
       await seedItemExtrasIfEmpty(payload)
+      await seedCommerceIfEmpty(payload)
     } catch (error) {
       payload.logger.error({ err: error }, 'Failed to seed restaurant content')
     }

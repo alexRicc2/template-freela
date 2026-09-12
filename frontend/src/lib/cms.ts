@@ -81,6 +81,10 @@ export function extraInfo(item: MenuItem): ItemExtraInfo {
   }
 }
 
+export function fillTemplate(template: string, vars: Record<string, string>) {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? '')
+}
+
 export function categorySlug(item: MenuItem) {
   if (item.category && typeof item.category === 'object') return item.category.slug
   return ''
@@ -117,4 +121,17 @@ export async function createReservation(payload: Record<string, unknown>) {
     throw new Error(body || 'Não foi possível enviar a reserva.')
   }
   return response.json()
+}
+
+export async function createLead(payload: Record<string, unknown>) {
+  const response = await fetch(`${payloadURL}/api/leads`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (response.ok || response.status === 409) {
+    return { ok: true, duplicate: response.status === 409 }
+  }
+  const body = await response.text()
+  throw new Error(body || 'Não foi possível salvar o contato.')
 }

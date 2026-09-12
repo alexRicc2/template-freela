@@ -17,18 +17,22 @@ const { groups, mode } = Astro.props as {
         const src = mediaSrc(item.image, item.imageUrl)
         const description = item.description || item.ingredients || ''
         const extras = extraInfo(item)
+        const addons = item.addons || []
         return (
           <article
             class="side-card side-card-clickable"
             tabindex="0"
             role="button"
             data-item-open
+            data-id={String(item.id)}
             data-name={item.name}
             data-description={description}
+            data-ingredients={item.ingredients || ''}
             data-image={src}
             data-price={item.price ?? ''}
             data-tag={item.tag || ''}
             data-extra={JSON.stringify(extras)}
+            data-addons={JSON.stringify(addons)}
           >
             {src && <img src={src} alt={item.name} />}
             <div>
@@ -44,31 +48,10 @@ const { groups, mode } = Astro.props as {
               )}
               {item.price != null && <p class="price">{formatPrice(item.price)}</p>}
               {mode === 'order' && (
-                <div class="qty-row">
-                  <button
-                    type="button"
-                    class="btn btn-ghost qty-btn"
-                    data-dec
-                    data-id={String(item.id)}
-                    data-name={item.name}
-                    data-price={item.price ?? 0}
-                    aria-label={`Remover ${item.name}`}
-                  >
-                    −
-                  </button>
-                  <span data-qty-display={String(item.id)}>0</span>
-                  <button
-                    type="button"
-                    class="btn btn-gold qty-btn"
-                    data-inc
-                    data-id={String(item.id)}
-                    data-name={item.name}
-                    data-price={item.price ?? 0}
-                    aria-label={`Adicionar ${item.name}`}
-                  >
-                    +
-                  </button>
-                </div>
+                <p class="order-hint">{addons.length ? 'Toque para personalizar' : 'Toque para pedir'}</p>
+              )}
+              {mode === 'view' && addons.length > 0 && (
+                <p class="order-hint">{addons.length} {addons.length === 1 ? 'adicional' : 'adicionais'}</p>
               )}
             </div>
           </article>

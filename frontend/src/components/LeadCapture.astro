@@ -1,0 +1,144 @@
+---
+import type { Site } from '../lib/types'
+
+const { site } = Astro.props as { site: Site }
+---
+
+{
+  site.leadCaptureEnabled && (
+    <dialog
+      class="lead-dialog"
+      data-lead-dialog
+      data-campaign={site.leadCaptureCampaign || 'primeiro-pedido'}
+      data-coupon={site.leadCaptureCoupon || ''}
+      data-discount={site.leadCaptureDiscount || ''}
+      data-restaurant={site.restaurantName}
+      data-wa={site.whatsapp || ''}
+      data-template={
+        site.leadCaptureWhatsappMessage ||
+        'Olá, {restaurant}! Quero o cupom {coupon} ({discount}) no primeiro pedido. Meu WhatsApp é {phone}.'
+      }
+    >
+      <button type="button" class="dialog-close" data-lead-dismiss aria-label="Fechar">
+        ×
+      </button>
+      <div class="lead-dialog-body">
+        {site.leadCaptureDiscount && <p class="lead-seal">{site.leadCaptureDiscount}</p>}
+        <p class="eyebrow">Primeira visita</p>
+        <h2>{site.leadCaptureTitle}</h2>
+        <p>{site.leadCaptureBody}</p>
+        <form class="form" data-lead-form>
+          <label>
+            Nome (opcional)
+            <input type="text" name="name" autocomplete="name" />
+          </label>
+          <label>
+            WhatsApp
+            <input
+              type="tel"
+              name="phone"
+              required
+              autocomplete="tel"
+              inputmode="tel"
+              placeholder="(17) 99999-9999"
+            />
+          </label>
+          <button class="btn btn-gold" type="submit">
+            {site.leadCaptureCta || 'Quero meu desconto'}
+          </button>
+          <button class="btn btn-ghost" type="button" data-lead-dismiss>
+            Agora não
+          </button>
+        </form>
+        <p class="lead-note" data-lead-error hidden></p>
+      </div>
+    </dialog>
+  )
+}
+
+<script>
+  import { createLead, fillTemplate } from '../lib/cms'
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lead-dialog]')
+  if (dialog) {
+    const campaign = dialog.dataset.campaign || 'primeiro-pedido'
+    const storageKey = `forja-lead:${campaign}`
+    const form = dialog.querySelector<HTMLFormElement>('[data-lead-form]')
+    const error = dialog.querySelector<HTMLElement>('[data-lead-error]')
+
+    function seen() {
+      return localStorage.getItem(storageKey) === '1'
+    }
+
+    function markSeen() {
+      localStorage.setItem(storageKey, '1')
+    }
+
+    function hide() {
+      markSeen()
+      dialog?.close()
+    }
+
+    if (!seen()) {
+      window.setTimeout(() => {
+        if (!seen() && dialog && !dialog.open) dialog.showModal()
+      }, 1600)
+    }
+
+    dialog.querySelectorAll('[data-lead-dismiss]').forEach((button) => {
+      button.addEventListener('click', hide)
+    })
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) hide()
+    })
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      const data = new FormData(form)
+      const name = String(data.get('name') || '').trim()
+      const phone = String(data.get('phone') || '').replace(/\D/g, '')
+      if (phone.length < 10) {
+        if (error) {
+          error.hidden = false
+          error.textContent = 'Informe um WhatsApp válido.'
+        }
+        return
+      }
+
+      const coupon = dialog.dataset.coupon || ''
+      const discount = dialog.dataset.discount || ''
+      const restaurant = dialog.dataset.restaurant || ''
+
+      try {
+        await createLead({
+          name: name || undefined,
+          phone,
+          campaign,
+          coupon,
+          source: 'popup',
+          status: 'new',
+        })
+      } catch {
+        if (error) {
+          error.hidden = false
+          error.textContent = 'Não foi possível salvar agora, mas vamos abrir o WhatsApp com o cupom.'
+        }
+      }
+
+      markSeen()
+      const message = fillTemplate(dialog.dataset.template || '', {
+        restaurant,
+        coupon,
+        discount,
+        phone,
+        name: name || 'cliente',
+      })
+      const wa = (dialog.dataset.wa || '').replace(/\D/g, '')
+      if (wa) {
+        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
+      }
+      dialog.close()
+    })
+  }
+</script>

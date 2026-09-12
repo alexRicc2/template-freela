@@ -2,9 +2,12 @@
 import Layout from '../layouts/Layout.astro'
 import ItemDialog from '../components/ItemDialog.astro'
 import MenuCatalog from '../components/MenuCatalog.astro'
+import ReviewBanner from '../components/ReviewBanner.astro'
 import { categorySlug, DELIVERY_WHATSAPP, getRestaurantContent } from '../lib/cms'
+import { restaurantStatus } from '../lib/hours'
 
 const { site, items, categories } = await getRestaurantContent()
+const status = restaurantStatus(site)
 const groups = categories
   .map((category) => ({
     category,
@@ -14,12 +17,24 @@ const groups = categories
 ---
 
 <Layout site={site} title="Delivery">
-  <section class="section delivery-page" data-delivery-app data-restaurant={site.restaurantName} data-wa={DELIVERY_WHATSAPP}>
+  <section
+    class="section delivery-page"
+    data-delivery-app
+    data-restaurant={site.restaurantName}
+    data-wa={DELIVERY_WHATSAPP}
+    data-accept-orders={status.acceptOrders ? 'true' : 'false'}
+  >
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">{site.deliveryLabel || 'Delivery'}</p>
         <h2>Peça para casa</h2>
-        <p>Escolha os itens, monte o carrinho e finalize o pedido. Toque em um prato para ver os detalhes. O pedido vai para o WhatsApp com o seu endereço.</p>
+        <p>
+          Escolha os itens, personalize os adicionais e finalize o pedido. Toque em um prato para o
+          copy, os opcionais e o carrinho. O pedido vai para o WhatsApp com o seu endereço.
+        </p>
+        <p class="closed-note" data-closed-note hidden={status.acceptOrders}>
+          {site.closedMessage || status.detail || status.label}
+        </p>
       </div>
       <MenuCatalog groups={groups} mode="order" />
     </div>
@@ -28,7 +43,9 @@ const groups = categories
   <div class="cart-bar">
     <div class="wrap">
       <p class="cart-summary" data-cart-summary>Carrinho vazio</p>
-      <button class="btn btn-gold" type="button" data-cart-finish disabled>Finalizar pedido</button>
+      <button class="btn btn-gold" type="button" data-cart-finish disabled>
+        {status.acceptOrders ? 'Finalizar pedido' : 'Casa fechada'}
+      </button>
     </div>
   </div>
 
@@ -85,7 +102,20 @@ const groups = categories
       </form>
     </div>
   </dialog>
-  <ItemDialog />
+
+  <dialog class="checkout-dialog thanks-dialog" data-thanks-dialog>
+    <button type="button" class="dialog-close" data-thanks-close aria-label="Fechar">×</button>
+    <div class="checkout-body">
+      <p class="eyebrow">Pedido enviado</p>
+      <h2>Agora é só confirmar no WhatsApp</h2>
+      <p>A mensagem já foi aberta. Se quiser, avalie a casa — o mesmo convite da placa NFC.</p>
+      <ReviewBanner site={site} />
+      <p>
+        <a class="btn btn-ghost" href="/avaliar">Página de avaliação</a>
+      </p>
+    </div>
+  </dialog>
+  <ItemDialog order />
 </Layout>
 
 <script>

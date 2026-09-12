@@ -72,6 +72,7 @@ export interface Config {
     'menu-categories': MenuCategory;
     'menu-items': MenuItem;
     reservations: Reservation;
+    leads: Lead;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     'menu-categories': MenuCategoriesSelect<false> | MenuCategoriesSelect<true>;
     'menu-items': MenuItemsSelect<false> | MenuItemsSelect<true>;
     reservations: ReservationsSelect<false> | ReservationsSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -217,9 +219,12 @@ export interface MenuItem {
    * Ex.: Realeza, Guerreiro, Chef — aparece sobre a foto.
    */
   tag?: string | null;
+  /**
+   * Texto que desperta o apetite: calor, crocância, suculência, contraste. Evite só listar ingredientes — isso vai no campo abaixo. Ex.: “Pão brioche tostado na manteiga, 160g de blend suculento grelhado na brasa, envolvido em catupiry empanado crocante e rúcula fresca”.
+   */
   description?: string | null;
   /**
-   * Revelados no hover/toque da home.
+   * Lista objetiva dos ingredientes. Aparece como detalhe, não como texto principal.
    */
   ingredients?: string | null;
   price?: number | null;
@@ -244,6 +249,14 @@ export interface MenuItem {
    * Ex.: leite, glúten, ovos, soja, amendoim
    */
   allergens?: string | null;
+  addons?:
+    | {
+        name: string;
+        price?: number | null;
+        kind?: ('add' | 'extra' | 'swap') | null;
+        id?: string | null;
+      }[]
+    | null;
   image?: (number | null) | Media;
   /**
    * Usada se não houver upload. Ideal para placeholders.
@@ -269,6 +282,30 @@ export interface Reservation {
   area?: ('any' | 'indoor' | 'outdoor') | null;
   notes?: string | null;
   status?: ('new' | 'confirmed' | 'cancelled') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Captados no popup de desconto da primeira visita. Um telefone por campanha.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  name?: string | null;
+  /**
+   * Somente números, com DDI. Ex.: 5517999999999
+   */
+  phone: string;
+  /**
+   * Muda no popup do site para reabrir a oferta a quem já viu a campanha anterior.
+   */
+  campaign: string;
+  coupon?: string | null;
+  source?: string | null;
+  status?: ('new' | 'contacted' | 'redeemed') | null;
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -315,6 +352,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reservations';
         value: number | Reservation;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -460,6 +501,14 @@ export interface MenuItemsSelect<T extends boolean = true> {
   prepTimeMinutes?: T;
   spicyLevel?: T;
   allergens?: T;
+  addons?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        kind?: T;
+        id?: T;
+      };
   image?: T;
   imageUrl?: T;
   featured?: T;
@@ -481,6 +530,21 @@ export interface ReservationsSelect<T extends boolean = true> {
   area?: T;
   notes?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  campaign?: T;
+  coupon?: T;
+  source?: T;
+  status?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -571,6 +635,55 @@ export interface Site {
     | null;
   deliveryUrl?: string | null;
   deliveryLabel?: string | null;
+  /**
+   * Use “Forçar” em feriados ou imprevistos. No automático, o site calcula Aberto/Fechado pelo horário da semana.
+   */
+  statusMode?: ('schedule' | 'open' | 'closed') | null;
+  /**
+   * IANA, ex.: America/Sao_Paulo
+   */
+  timezone?: string | null;
+  openLabel?: string | null;
+  closedLabel?: string | null;
+  /**
+   * Exibido no delivery quando a casa não está aceitando pedidos.
+   */
+  closedMessage?: string | null;
+  acceptOrdersWhenClosed?: boolean | null;
+  /**
+   * Usado pelo indicador Aberto/Fechado. 0 = domingo … 6 = sábado.
+   */
+  weeklyHours?:
+    | {
+        weekday: '0' | '1' | '2' | '3' | '4' | '5' | '6';
+        closed?: boolean | null;
+        opensAt?: string | null;
+        closesAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  leadCaptureEnabled?: boolean | null;
+  /**
+   * Quem já viu ou resgatou não vê de novo. Troque o ID para relançar a oferta.
+   */
+  leadCaptureCampaign?: string | null;
+  leadCaptureTitle?: string | null;
+  leadCaptureBody?: string | null;
+  leadCaptureDiscount?: string | null;
+  leadCaptureCoupon?: string | null;
+  leadCaptureCta?: string | null;
+  /**
+   * Placeholders: {restaurant} {coupon} {discount} {phone} {name}
+   */
+  leadCaptureWhatsappMessage?: string | null;
+  googleReviewEnabled?: boolean | null;
+  /**
+   * Link “Escrever avaliação” do Google. Também usado na página /avaliar (placa NFC).
+   */
+  googleReviewUrl?: string | null;
+  googleReviewTitle?: string | null;
+  googleReviewBody?: string | null;
+  googleReviewCta?: string | null;
   address?: string | null;
   phone?: string | null;
   whatsapp?: string | null;
@@ -635,6 +748,34 @@ export interface SiteSelect<T extends boolean = true> {
       };
   deliveryUrl?: T;
   deliveryLabel?: T;
+  statusMode?: T;
+  timezone?: T;
+  openLabel?: T;
+  closedLabel?: T;
+  closedMessage?: T;
+  acceptOrdersWhenClosed?: T;
+  weeklyHours?:
+    | T
+    | {
+        weekday?: T;
+        closed?: T;
+        opensAt?: T;
+        closesAt?: T;
+        id?: T;
+      };
+  leadCaptureEnabled?: T;
+  leadCaptureCampaign?: T;
+  leadCaptureTitle?: T;
+  leadCaptureBody?: T;
+  leadCaptureDiscount?: T;
+  leadCaptureCoupon?: T;
+  leadCaptureCta?: T;
+  leadCaptureWhatsappMessage?: T;
+  googleReviewEnabled?: T;
+  googleReviewUrl?: T;
+  googleReviewTitle?: T;
+  googleReviewBody?: T;
+  googleReviewCta?: T;
   address?: T;
   phone?: T;
   whatsapp?: T;

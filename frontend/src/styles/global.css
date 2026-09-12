@@ -110,6 +110,42 @@ h3,
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.status-bar strong {
+  font-weight: 700;
+}
+
+.status-bar span[data-status-detail] {
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.status-bar.is-open {
+  color: #b7e3b0;
+  background: rgba(62, 140, 78, 0.16);
+}
+
+.status-bar.is-closed {
+  color: #f0c9a0;
+  background: rgba(140, 78, 42, 0.2);
+}
+
 .site-header .wrap {
   display: flex;
   align-items: center;
@@ -456,7 +492,8 @@ h3,
 }
 
 .item-dialog,
-.checkout-dialog {
+.checkout-dialog,
+.lead-dialog {
   width: min(520px, calc(100% - 32px));
   padding: 0;
   border: 1px solid var(--line);
@@ -474,7 +511,8 @@ h3,
 }
 
 .item-dialog::backdrop,
-.checkout-dialog::backdrop {
+.checkout-dialog::backdrop,
+.lead-dialog::backdrop {
   background: rgba(0, 0, 0, 0.72);
 }
 
@@ -547,6 +585,149 @@ h3,
   color: var(--muted);
 }
 
+.item-ingredients {
+  margin: 0.8rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.order-hint {
+  margin: 0.75rem 0 0;
+  color: var(--gold-2);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.addons-block {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.addons-title {
+  margin: 0 0 0.7rem;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.addon-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.55rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.addon-row-static {
+  grid-template-columns: 1fr auto;
+  cursor: default;
+}
+
+.addon-row strong {
+  color: var(--gold-2);
+  font-size: 0.88rem;
+}
+
+.addon-row input {
+  accent-color: var(--gold);
+}
+
+.dialog-order {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+
+.dialog-order .qty-row {
+  margin-top: 0;
+}
+
+.dialog-add {
+  width: 100%;
+}
+
+.closed-note {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(224, 179, 74, 0.35);
+  border-radius: 12px;
+  background: rgba(140, 78, 42, 0.18);
+  color: var(--gold-2);
+}
+
+.lead-dialog-body,
+.checkout-body {
+  padding: 1.3rem 1.4rem 1.6rem;
+}
+
+.lead-dialog .form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  max-width: none;
+}
+
+.lead-dialog .form .btn {
+  width: 100%;
+}
+
+.lead-seal {
+  display: inline-flex;
+  margin: 0 0 0.6rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+  color: #2a1d07;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.lead-note {
+  color: #f0c9a0;
+  font-size: 0.9rem;
+}
+
+.review-banner {
+  margin: 1.2rem 0;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(224, 179, 74, 0.08);
+}
+
+.review-banner h3 {
+  margin: 0.2rem 0 0.5rem;
+}
+
+.review-banner p {
+  color: var(--muted);
+}
+
+.review-page-inner {
+  max-width: 640px;
+}
+
+.review-page h1 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.cart-lines small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+}
+
 .item-dialog-body,
 .checkout-body {
   padding: 1.3rem 1.4rem 1.6rem;
@@ -609,7 +790,8 @@ h3,
   backdrop-filter: blur(12px);
 }
 
-body:has(.checkout-dialog[open]) .cart-bar {
+body:has(.checkout-dialog[open]) .cart-bar,
+body:has(.thanks-dialog[open]) .cart-bar {
   display: none;
 }
 
@@ -674,7 +856,7 @@ body:has(.checkout-dialog[open]) .cart-bar {
 
   .nav.open {
     position: absolute;
-    top: 76px;
+    top: 100%;
     left: 0;
     right: 0;
     background: #120f0c;
