@@ -13,8 +13,8 @@ Inspired by the structure of [Feudal Burguer](https://feudalburguer.com.br/).
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and fill in your Supabase connection string (URL-encode `/`, `@`, `#` in the password).
-2. Copy the same `DATABASE_URL` / `PAYLOAD_SECRET` into `cms/.env`.
+1. Copy `.env.example` to `.env` and fill in the Supabase **shared pooler** URI (session mode, port `5432`). URL-encode `/`, `@`, `#` in the password. Do not use the `db.….supabase.co` direct host on Vercel (IPv6-only).
+2. Copy the same `DATABASE_URL` / `PAYLOAD_SECRET` into `cms/.env` and into the Vercel CMS project env vars.
 3. Install and run:
 
 ```sh
